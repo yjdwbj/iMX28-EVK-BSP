@@ -1,0 +1,332 @@
+diff -Naur linux-4.14.51/arch/arm/boot/dts/imx28-evk.dts linux-4.14.51-lcy/arch/arm/boot/dts/imx28-evk.dts
+--- linux-4.14.51/arch/arm/boot/dts/imx28-evk.dts	2018-06-21 03:03:02.000000000 +0800
++++ linux-4.14.51-lcy/arch/arm/boot/dts/imx28-evk.dts	2018-06-29 21:06:27.356843524 +0800
+@@ -40,29 +40,6 @@
+ 				status = "okay";
+ 			};
+ 
+-			ssp1: ssp@80012000 {
+-				compatible = "fsl,imx28-mmc";
+-				bus-width = <8>;
+-				wp-gpios = <&gpio0 28 0>;
+-			};
+-
+-			ssp2: ssp@80014000 {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-				compatible = "fsl,imx28-spi";
+-				pinctrl-names = "default";
+-				pinctrl-0 = <&spi2_pins_a>;
+-				status = "okay";
+-
+-				flash: m25p80@0 {
+-					#address-cells = <1>;
+-					#size-cells = <1>;
+-					compatible = "sst,sst25vf016b", "jedec,spi-nor";
+-					spi-max-frequency = <40000000>;
+-					reg = <0>;
+-				};
+-			};
+-
+ 			pinctrl@80018000 {
+ 				pinctrl-names = "default";
+ 				pinctrl-0 = <&hog_pins_a>;
+@@ -104,65 +81,16 @@
+ 					fsl,voltage = <MXS_VOLTAGE_HIGH>;
+ 					fsl,pull-up = <MXS_PULL_DISABLE>;
+ 				};
+-
+-				lcdif_pins_evk: lcdif-evk@0 {
+-					reg = <0>;
+-					fsl,pinmux-ids = <
+-						MX28_PAD_LCD_RD_E__LCD_VSYNC
+-						MX28_PAD_LCD_WR_RWN__LCD_HSYNC
+-						MX28_PAD_LCD_RS__LCD_DOTCLK
+-						MX28_PAD_LCD_CS__LCD_ENABLE
+-					>;
+-					fsl,drive-strength = <MXS_DRIVE_4mA>;
+-					fsl,voltage = <MXS_VOLTAGE_HIGH>;
+-					fsl,pull-up = <MXS_PULL_DISABLE>;
+-				};
+ 			};
+ 
+-			lcdif@80030000 {
+-				pinctrl-names = "default";
+-				pinctrl-0 = <&lcdif_24bit_pins_a
+-					     &lcdif_pins_evk>;
+-				lcd-supply = <&reg_lcd_3v3>;
+-				display = <&display0>;
+-				status = "okay";
+ 
+-				display0: display0 {
+-					bits-per-pixel = <32>;
+-					bus-width = <24>;
+-
+-					display-timings {
+-						native-mode = <&timing0>;
+-						timing0: timing0 {
+-							clock-frequency = <33500000>;
+-							hactive = <800>;
+-							vactive = <480>;
+-							hback-porch = <89>;
+-							hfront-porch = <164>;
+-							vback-porch = <23>;
+-							vfront-porch = <10>;
+-							hsync-len = <10>;
+-							vsync-len = <10>;
+-							hsync-active = <0>;
+-							vsync-active = <0>;
+-							de-active = <1>;
+-							pixelclk-active = <0>;
+-						};
+-					};
+-				};
+-			};
++            digctl@8001c000{
++                statuc = "okay";
++            };
+ 
+-			can0: can@80032000 {
+-				pinctrl-names = "default";
+-				pinctrl-0 = <&can0_pins_a>;
+-				xceiver-supply = <&reg_can_3v3>;
+-				status = "okay";
+-			};
+ 
+-			can1: can@80034000 {
+-				pinctrl-names = "default";
+-				pinctrl-0 = <&can1_pins_a>;
+-				xceiver-supply = <&reg_can_3v3>;
++			dcp@80028000 {
++				compatible = "fsl,imx28-dcp";
+ 				status = "okay";
+ 			};
+ 		};
+@@ -221,18 +149,22 @@
+ 				status = "okay";
+ 			};
+ 
+-			auart0: serial@8006a000 {
+-				pinctrl-names = "default";
+-				pinctrl-0 = <&auart0_pins_a>;
+-				uart-has-rtscts;
+-				status = "okay";
+-			};
+ 
+-			auart3: serial@80070000 {
+-				pinctrl-names = "default";
+-				pinctrl-0 = <&auart3_pins_a>;
+-				status = "okay";
+-			};
++            auart0: serial@8006a000 {
++                    pinctrl-names = "default";
++                    pinctrl-0 = <&auart0_2pins_a>;
++                    status = "okay";
++            };
++
++            auart3: serial@80070000 {
++                    pinctrl-names = "default";
++                    pinctrl-0 = <&auart3_2pins_a>;
++                    status = "okay";
++            };
++
++            auart4: serial@80072000 {
++                    status = "okay";
++            };
+ 
+ 			usbphy0: usbphy@8007c000 {
+ 				status = "okay";
+@@ -326,27 +258,6 @@
+ 			gpio = <&gpio3 8 0>;
+ 			enable-active-high;
+ 		};
+-
+-		reg_lcd_3v3: regulator@5 {
+-			compatible = "regulator-fixed";
+-			reg = <5>;
+-			regulator-name = "lcd-3v3";
+-			regulator-min-microvolt = <3300000>;
+-			regulator-max-microvolt = <3300000>;
+-			gpio = <&gpio3 30 0>;
+-			enable-active-high;
+-		};
+-
+-		reg_can_3v3: regulator@6 {
+-			compatible = "regulator-fixed";
+-			reg = <6>;
+-			regulator-name = "can-3v3";
+-			regulator-min-microvolt = <3300000>;
+-			regulator-max-microvolt = <3300000>;
+-			gpio = <&gpio2 13 0>;
+-			enable-active-high;
+-		};
+-
+ 	};
+ 
+ 	sound {
+diff -Naur linux-4.14.51/scripts/dtc/include-prefixes/arm/imx28-evk.dts linux-4.14.51-lcy/scripts/dtc/include-prefixes/arm/imx28-evk.dts
+--- linux-4.14.51/scripts/dtc/include-prefixes/arm/imx28-evk.dts	2018-06-21 03:03:02.000000000 +0800
++++ linux-4.14.51-lcy/scripts/dtc/include-prefixes/arm/imx28-evk.dts	2018-06-29 21:06:27.356843524 +0800
+@@ -40,29 +40,6 @@
+ 				status = "okay";
+ 			};
+ 
+-			ssp1: ssp@80012000 {
+-				compatible = "fsl,imx28-mmc";
+-				bus-width = <8>;
+-				wp-gpios = <&gpio0 28 0>;
+-			};
+-
+-			ssp2: ssp@80014000 {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-				compatible = "fsl,imx28-spi";
+-				pinctrl-names = "default";
+-				pinctrl-0 = <&spi2_pins_a>;
+-				status = "okay";
+-
+-				flash: m25p80@0 {
+-					#address-cells = <1>;
+-					#size-cells = <1>;
+-					compatible = "sst,sst25vf016b", "jedec,spi-nor";
+-					spi-max-frequency = <40000000>;
+-					reg = <0>;
+-				};
+-			};
+-
+ 			pinctrl@80018000 {
+ 				pinctrl-names = "default";
+ 				pinctrl-0 = <&hog_pins_a>;
+@@ -104,65 +81,16 @@
+ 					fsl,voltage = <MXS_VOLTAGE_HIGH>;
+ 					fsl,pull-up = <MXS_PULL_DISABLE>;
+ 				};
+-
+-				lcdif_pins_evk: lcdif-evk@0 {
+-					reg = <0>;
+-					fsl,pinmux-ids = <
+-						MX28_PAD_LCD_RD_E__LCD_VSYNC
+-						MX28_PAD_LCD_WR_RWN__LCD_HSYNC
+-						MX28_PAD_LCD_RS__LCD_DOTCLK
+-						MX28_PAD_LCD_CS__LCD_ENABLE
+-					>;
+-					fsl,drive-strength = <MXS_DRIVE_4mA>;
+-					fsl,voltage = <MXS_VOLTAGE_HIGH>;
+-					fsl,pull-up = <MXS_PULL_DISABLE>;
+-				};
+ 			};
+ 
+-			lcdif@80030000 {
+-				pinctrl-names = "default";
+-				pinctrl-0 = <&lcdif_24bit_pins_a
+-					     &lcdif_pins_evk>;
+-				lcd-supply = <&reg_lcd_3v3>;
+-				display = <&display0>;
+-				status = "okay";
+ 
+-				display0: display0 {
+-					bits-per-pixel = <32>;
+-					bus-width = <24>;
+-
+-					display-timings {
+-						native-mode = <&timing0>;
+-						timing0: timing0 {
+-							clock-frequency = <33500000>;
+-							hactive = <800>;
+-							vactive = <480>;
+-							hback-porch = <89>;
+-							hfront-porch = <164>;
+-							vback-porch = <23>;
+-							vfront-porch = <10>;
+-							hsync-len = <10>;
+-							vsync-len = <10>;
+-							hsync-active = <0>;
+-							vsync-active = <0>;
+-							de-active = <1>;
+-							pixelclk-active = <0>;
+-						};
+-					};
+-				};
+-			};
++            digctl@8001c000{
++                statuc = "okay";
++            };
+ 
+-			can0: can@80032000 {
+-				pinctrl-names = "default";
+-				pinctrl-0 = <&can0_pins_a>;
+-				xceiver-supply = <&reg_can_3v3>;
+-				status = "okay";
+-			};
+ 
+-			can1: can@80034000 {
+-				pinctrl-names = "default";
+-				pinctrl-0 = <&can1_pins_a>;
+-				xceiver-supply = <&reg_can_3v3>;
++			dcp@80028000 {
++				compatible = "fsl,imx28-dcp";
+ 				status = "okay";
+ 			};
+ 		};
+@@ -221,18 +149,22 @@
+ 				status = "okay";
+ 			};
+ 
+-			auart0: serial@8006a000 {
+-				pinctrl-names = "default";
+-				pinctrl-0 = <&auart0_pins_a>;
+-				uart-has-rtscts;
+-				status = "okay";
+-			};
+ 
+-			auart3: serial@80070000 {
+-				pinctrl-names = "default";
+-				pinctrl-0 = <&auart3_pins_a>;
+-				status = "okay";
+-			};
++            auart0: serial@8006a000 {
++                    pinctrl-names = "default";
++                    pinctrl-0 = <&auart0_2pins_a>;
++                    status = "okay";
++            };
++
++            auart3: serial@80070000 {
++                    pinctrl-names = "default";
++                    pinctrl-0 = <&auart3_2pins_a>;
++                    status = "okay";
++            };
++
++            auart4: serial@80072000 {
++                    status = "okay";
++            };
+ 
+ 			usbphy0: usbphy@8007c000 {
+ 				status = "okay";
+@@ -326,27 +258,6 @@
+ 			gpio = <&gpio3 8 0>;
+ 			enable-active-high;
+ 		};
+-
+-		reg_lcd_3v3: regulator@5 {
+-			compatible = "regulator-fixed";
+-			reg = <5>;
+-			regulator-name = "lcd-3v3";
+-			regulator-min-microvolt = <3300000>;
+-			regulator-max-microvolt = <3300000>;
+-			gpio = <&gpio3 30 0>;
+-			enable-active-high;
+-		};
+-
+-		reg_can_3v3: regulator@6 {
+-			compatible = "regulator-fixed";
+-			reg = <6>;
+-			regulator-name = "can-3v3";
+-			regulator-min-microvolt = <3300000>;
+-			regulator-max-microvolt = <3300000>;
+-			gpio = <&gpio2 13 0>;
+-			enable-active-high;
+-		};
+-
+ 	};
+ 
+ 	sound {
